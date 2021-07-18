@@ -1,32 +1,13 @@
 # run-length-encoding-notebook
 
-FIXME: description
-
+Gorilla REPL notebook describing various Clojure implementations of RLE solution from Exercism.io 
 ## Installation
 
-Download from http://example.com/FIXME.
+Download from https://github.com/andeemarks/run-length-encoding-notebook.
 
 ## Usage
 
-FIXME: explanation
-
-    $ java -jar run-length-encoding-notebook-0.1.0-standalone.jar [args]
-
-## Options
-
-FIXME: listing of options this app accepts.
-
-## Examples
-
-...
-
-### Bugs
-
-...
-
-### Any Other Sections
-### That You Think
-### Might be Useful
+    $ lein gorilla
 
 ## License
 
