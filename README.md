@@ -9,6 +9,10 @@ Download from https://github.com/andeemarks/run-length-encoding-notebook.
 
     $ lein gorilla
 
+## Online Viewer
+
+Via http://viewer.gorilla-repl.org/view.html?source=github&user=andeemarks&repo=run-length-encoding-notebook&path=ws/rle-comparison.clj
+
 ## License
 
 Copyright © 2021 FIXME
