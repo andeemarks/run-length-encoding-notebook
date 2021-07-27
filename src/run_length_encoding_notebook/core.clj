@@ -9,18 +9,10 @@
                     (map count runs) ;; count the length of each run
                     (map first runs)))))) ;; isolate the value of each run
 
-(defn- component-to-run [component]
-  (let [length (Integer/parseInt (first (re-seq #"\d+" component)))
-        value (first (re-seq #"[^\d]+" component))
-        run (apply str (repeat length (get value 0)))]
-    (if (<= 1 (count value))
-      (str run (apply str (rest value)))
-      run)))
-
 (defn run-length-decode
-  "decodes a run-length-encoded string"
-  [cipher-text]
-  (let [components (re-seq #"\d+[^\d]+" cipher-text)]
-    (if (nil? components)
-      cipher-text
-      (apply str (map #(component-to-run %) components)))))
+  [s]
+  (let [components (re-seq #"[1-9]*[a-zA-Z ]" s)]
+    (apply str (map #(let [length-raw (apply str (drop-last %))
+                           length (if (= 0 (count length-raw)) 1 (Integer. length-raw))
+                           value (last %)]
+                       (apply str (repeat length value))) components))))

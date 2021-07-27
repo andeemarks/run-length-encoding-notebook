@@ -7,7 +7,7 @@
 ;;; 
 ;;; ## My Solution
 ;;; 
-;;; Ladies and gentlemen, I present my solution to the RLE problem in the Clojure track of [exercism.io](https://exercism.io)
+;;; Ladies and gentlemen, I present my solution to the RLE problem in the Clojure track of [exercism.io](https://exercism.io)!
 ;;; 
 ;; **
 
@@ -58,9 +58,9 @@
 ;; <=
 
 ;; **
-;;; ## Unit tests
+;;; ## Requirements
 ;;; 
-;;; These are the tests provided by Exercism to help guide the solution, including defining the public interface of ```run-length-encode``` and ```run-length-decode```.
+;;; To understand how this code works, look at these tests provided by Exercism to help guide the solution, including defining the public interface of ```run-length-encode``` and ```run-length-decode```.
 ;; **
 
 ;; @@
@@ -129,11 +129,11 @@
 ;; <=
 
 ;; **
-;;; Now I was fairly happy with my implementation when I submitted it to Exercism and one of the great aspects of that platform is the ability to view community solutions to the same problem you have just completed.  You can quickly see how other developers have implemented the same solution, and how similar (or different) their solutions are to your own.  Sometimes this comparison is affirming, sometimes it is demoralising.  
+;;; Now I was fairly happy with my implementation when I submitted it and/but one of the great aspects of Exercism is the ability to view community solutions to the same problem you have just completed.  You can quickly see how other developers have implemented the same solution, and how similar (or different) their solutions are to your own.  Sometimes this comparison is affirming, sometimes it is demoralising.  
 ;;; 
 ;;; ## An idiomatic solution
 ;;; 
-;;; With Clojure in particular, heavily idiomatic solutions sometimes seem quite foreign to me, and this was the situation I found when looking at the community solutions with the highest number of stars...
+;;; With Clojure in particular, heavily idiomatic solutions sometimes seem quite foreign to me, and this was the situation I found when looking at one of the highest rated community solutions...
 ;; **
 
 ;; @@
@@ -177,7 +177,7 @@
 ;;; 
 ;;; ## Can I get there from here?
 ;;; 
-;;; The challenge I have set myself is to refactor my solution to the idiomatic version, or something close to it.  I know this is technically feasible, but I wanted to see what direction I would take knowing my destination.  I'm prepared to bump up against some of my own preferences for readable code along the way and probably be diving for the Clojure API all along the way, but I'm curious to see how this will feel...
+;;; The challenge I have set myself is to refactor my solution to the idiomatic version, or something close to it.  I know this is technically feasible, but I wanted to see what direction I would take knowing my destination.  I'm prepared to bump up against some of my own preferences for readable code along the way and probably be diving for the Clojure API regularly, but I'm curious to see how this will feel...
 ;;; 
 ;;; ### Step 1 - Inlining functions
 ;;; 
@@ -230,12 +230,12 @@
 ;; **
 ;;; So I cheated a little bit and only inlined the six low hanging fruit functions that took little-to-no mental effort to process.  They were all single line implementations, so I've only shaved off seven lines.  The code is now in a strange limbo world where it is a combination of raw Clojure function calls _and_ a few higher level functions.  This version nags at me because of the lack of [Structural Symmetry](https://odetocode.com/blogs/scott/archive/2011/02/07/the-value-of-symmetry.aspx).  
 ;;; 
+;;; ### Step 2 - Encoding
+;;; 
 ;;; Next step is to complete the inlining for ```run-length-encode```.
 ;; **
 
 ;; @@
-(ns run-length-encoding-notebook.core)
-
 (defn run-length-encode
   "encodes a string with run-length-encoding"
   [plain-text]
@@ -245,24 +245,10 @@
             (remove #(= % 1)
                     (interleave (doall (map count runs)) (map dedupe runs)))))))
 
-(defn- component-to-run [component]
-  (let [length (Integer/parseInt (first (re-seq #"\d+" component)))
-        value (first (re-seq #"[^\d]+" component))
-        run (apply str (repeat length (get value 0)))]
-    (if (<= 1 (count value))
-      (str run (apply str (rest value)))
-      run)))
-
-(defn run-length-decode
-  "decodes a run-length-encoded string"
-  [cipher-text]
-  (let [components (re-seq #"\d+[^\d]+" cipher-text)]
-    (if (nil? components)
-      cipher-text
-      (apply str (map #(component-to-run %) components)))))
+(run-length-encode "WWWWWWWWWWWWBWWWWWWWWWWWWBBBWWWWWWWWWWWWWWWWWWWWWWWWB")
 ;; @@
 ;; =>
-;;; {"type":"html","content":"<span class='clj-var'>#&#x27;run-length-encoding-notebook.core/run-length-decode</span>","value":"#'run-length-encoding-notebook.core/run-length-decode"}
+;;; {"type":"html","content":"<span class='clj-string'>&quot;12WB12W3B24WB&quot;</span>","value":"\"12WB12W3B24WB\""}
 ;; <=
 
 ;; **
@@ -325,9 +311,9 @@
 ;; <=
 
 ;; **
-;;; ### Common elements
+;;; #### Encoding - Common elements
 ;;; 
-;;; There are certainly common elements here, although not always easy to spot if you aren't used to reading a lot of lisp-like languages.  BOth solutions:
+;;; There are certainly common elements here, although not always easy to spot if you aren't used to reading a lot of lisp-like languages.  Both solutions:
 ;;; * Use ```partition-by identity``` as an opening gambit to split a collection (which includes a string) into groups based on their value/identity
 ;;; * Use ```apply str``` to turn each element of the return value into a string
 ;;; * Use ```count``` to determine the run length
@@ -356,7 +342,7 @@
 ;; **
 ;;; Using ```apply str``` is the idiomatic Clojure way to join a number of values into a single string.
 ;;; 
-;;; ### Omitting single value run counts
+;;; #### Encoding - Omitting single value run counts
 ;;; 
 ;;; The combination of these two sets of function gives us the top and tail of the overall solution.  The middle is all concerned with counting the length of each run.  There is a slight complication of needing to remove explicit references to runs of length 1 - after all, we are trying to reduce the size of the encoded text and "1A" is longer than just "A".  Each version solves this complication in different ways; my version naively encodes single length runs and then removes them from the result using the list comprehension ```remove #(= % 1)``` with the idiomatic version choosing not to create them in the first place via the ```if (= 1 (count %))``` phrase.
 ;; **
@@ -369,7 +355,7 @@
 ;; <=
 
 ;; **
-;;; ### High level encoding approach
+;;; #### Encoding - High level approach
 ;;; 
 ;;; There is a higher level difference between the two solutions that we touched on above. The idiomatic solution iteratively steps through each of the groups produced from ```partition-by identity``` and then uses ```count``` to calculate the length for each groups.  My solution uses ```(doall (map count runs))``` to create collection of all the group lengths, and then matches the corresponding run length to the value with ```interleave``` .  There may be a performance difference between these two approaches, but certainly not one that is relevant given the small size of the source text provided in the test cases.
 ;;; 
@@ -390,7 +376,7 @@ lengths
 ;; <=
 
 ;; **
-;;; #### Threading macros
+;;; #### Encoding - Threading macros
 ;;; 
 ;;; The other significant part of the idiomatic solution is the use of the [thread-last macro](https://clojure.org/guides/threading_macros) (```->>```) to create a pipeline of calls requiring the parameter ```s``` as a value.  I have a love-hate relationship with threading macros in Clojure.  I _love_ them when I see an opportunity to use them because I consider them to be highly idiomatic, but I also _hate_ them because my personal style of using lots of intention revealing ```let``` calls often makes it hard to use them.
 ;;; 
@@ -400,7 +386,7 @@ lengths
 ;;; 
 ;;; After a quick experiment, it doesn't look like there is a ready way to use threading in my solution due to my high level approach of creating parallel collection of run values and lengths and then combining them.  The threading solution is a far better fit for the idiomatic solution that build the solution piece-by-piece.
 ;;; 
-;;; #### Optimisation
+;;; #### Encoding - Optimisation
 ;;; 
 ;;; Looking at my solution in comparison to the idiomatic one more closely, I can see another opportunity to reduce the variation between the two by using ```first``` rather than ```dedupe``` to extract the value for each group - ```dedupe``` seems like overkill now given I have already know each element in the groups produced by ```partition-by identity``` are guaranteed to be the same.  A quick experiment shows that although the result from ```dedupe``` to ```first``` is slightly different, those differences are still handled by the combination of ```interleave``` and ```apply str``` *and* I can remove the call to ```flatten``` in my solution.
 ;; **
@@ -421,11 +407,39 @@ result
 ;; <=
 
 ;; **
-;;; #### WTF?!?
+;;; #### Encoding - WTF?!?
 ;;; 
 ;;; Another thing I spotted in this close comparison is that my use of ```do-all``` was completely unnecessary.  It certainly didn't cause any problems, but it can happily be omitted without breaking the solution.  I'm sure it made sense to me at the time that I added it in :-)
 ;;; 
-;;; ### Final version of encoding
+;;; ### Encoding - Final version
+;; **
+
+;; @@
+;;; Idiomatic version
+(defn run-length-encode
+  [s]
+  (->> s
+       (partition-by identity)
+       (mapcat #(if (= 1 (count %))
+                  [(first %)]
+                  [(count %) (first %)]))
+       (apply str)))
+
+;;; My (refactored) version
+(defn run-length-encode
+  [s]
+  (let [runs (partition-by identity s)] ;; group by value
+    (apply str ;; combine counts and lengths into single string
+           (remove #(= % 1) ;; remove any single length run counts
+                   (interleave ;; combine the corresponding count and value
+                    (map count runs) ;; count the length of each run
+                    (map first runs)))))) ;; isolate the value of each run
+;; @@
+;; =>
+;;; {"type":"html","content":"<span class='clj-var'>#&#x27;run-length-encoding-notebook.core/run-length-encode</span>","value":"#'run-length-encoding-notebook.core/run-length-encode"}
+;; <=
+
+;; **
 ;;; 
 ;;; The conclusion from all these minor changes is this version which I have split onto more lines to support clearer line-by-line documention. Unfortunately this documentation does not _flow_ from top to bottom given the deeply nested nature of idiomatic Clojure solutions.
 ;;; 
@@ -433,9 +447,9 @@ result
 ;;; 
 ;;; | | My solution | Other solution |
 ;;; |-----|-----|
-;;; |Lines of code|8|8|
-;;; |Functions|1|1|
-;;; |Local variables|1|0|
+;;; |Lines of code|20 -> 8|8|
+;;; |Functions|6 -> 1|1|
+;;; |Local variables|1 -> 1|0|
 ;;; 
 ;;; I've extended this comparison to look at the common and unique functions used in each solution.  There are now 7 common functions, 4 unique functions in my solution and 2 unique functions in the idiomatic solution.  The use of the powerful ```mapcat``` (a Clojure function I'm aware of, but never reach for) is likely doing some heavy lifting here that I could use instead of ```map``` and ```interleave``` and the high level choice to incrementally build the solution value-by-value means that the idiomatic solution does not need to rely on the use of ```remove``` to cleanup single length run counts after the fact.
 ;;; 
@@ -452,19 +466,271 @@ result
 ;;; I am happy with this solution _for now_.  It is clear and as intentional as I think I can make it without resorting to more named variables (via ```let```) or functions.  I hope this clarity remains after I return to look at this code in the weeks/months to come.
 ;; **
 
+;; **
+;;; ### Step 3 - Decoding
+;;; 
+;;; We've spent enough time picking at the low hanging fruit - it's time to give some attention to the decoding part of the problem.  
+;; **
+
 ;; @@
-(defn run-length-encode
-  [s]
-  (let [runs (partition-by identity s)] ;; group by value
-    (apply str ;; combine counts and lengths into single string
-           (remove #(= % 1) ;; remove any single length run counts
-                   (interleave ;; combine the corresponding count and value
-                    (map count runs) ;; count the length of each run
-                    (map first runs)))))) ;; isolate the value of each run
+(defn- component-to-run [component]
+  (let [length (Integer/parseInt (first (re-seq #"\d+" component)))
+        value (first (re-seq #"[^\d]+" component))
+        run (apply str (repeat length (get value 0)))]
+    (if (<= 1 (count value))
+      (str run (apply str (rest value)))
+      run)))
+
+(defn run-length-decode
+  "decodes a run-length-encoded string"
+  [cipher-text]
+  (let [components (re-seq #"\d+[^\d]+" cipher-text)]
+    (if (nil? components)
+      cipher-text
+      (apply str (map #(component-to-run %) components)))))
 ;; @@
 ;; =>
-;;; {"type":"html","content":"<span class='clj-var'>#&#x27;run-length-encoding-notebook.core/run-length-encode</span>","value":"#'run-length-encoding-notebook.core/run-length-encode"}
+;;; {"type":"html","content":"<span class='clj-var'>#&#x27;run-length-encoding-notebook.core/run-length-decode</span>","value":"#'run-length-encoding-notebook.core/run-length-decode"}
 ;; <=
+
+;; **
+;;; When we left my version of decoding, I still had a single extra function that I was struggling to inline because it was relatively complex itself and would blow out the overall complexity of the main ```run-length-decode```.  
+;;; 
+;;; Technically, the inlining is relatively trivial though, so if you want to see the monstrosity that it would produce...
+;; **
+
+;; @@
+(defn run-length-decode
+  [s]
+  (let [components (re-seq #"\d+[^\d]+" s)]
+    (if (nil? components)
+      s
+      (apply str (map #(let [length (Integer/parseInt (first (re-seq #"\d+" %)))
+                             value (first (re-seq #"[^\d]+" %))
+                             run (apply str (repeat length (get value 0)))]
+                         (if (<= 1 (count value))
+                           (str run (apply str (rest value)))
+                           run)) components)))))
+;; @@
+;; =>
+;;; {"type":"html","content":"<span class='clj-var'>#&#x27;run-length-encoding-notebook.core/run-length-decode</span>","value":"#'run-length-encoding-notebook.core/run-length-decode"}
+;; <=
+
+;; **
+;;; compared to...
+;; **
+
+;; @@
+(defn run-length-decode
+  [s]
+  (->> s
+       (re-seq #"[1-9]*[a-zA-Z ]")
+       (mapcat #(if (= 1 (count %))
+                  %
+                  (repeat (->> % drop-last (apply str) Integer.) (last %))))
+       (apply str)))
+;; @@
+;; =>
+;;; {"type":"html","content":"<span class='clj-var'>#&#x27;run-length-encoding-notebook.core/run-length-decode</span>","value":"#'run-length-encoding-notebook.core/run-length-decode"}
+;; <=
+
+;; **
+;;; Unsurprisingly, you can see a lot of common syntactic elements in the encoding and decoding functions in the idiomatic solution; thread last macro (twice), ```mapcat``` with an associated ```if``` in particular.
+;;; 
+;;; Other things of note in the idiomatic solution:
+;;; * The regular expression seems to be doing more heavy lifting here compared to my solution
+;;; * There is no specific logic to handle the ```(nil? components)``` check I have in my version... I wonder how the author got around this?
+;;; * The nested thread-last macros is very hard for me to comprehend in the broader scope of the solution.  This might be an easy read for an experienced Clojure developer though
+;;; 
+;;; Because I'm on a journey of discovery, let's see if we can demystify those points above, starting with the regex...
+;; **
+
+;; @@
+(re-seq #"\d+[^\d]+" "2A3B4CD") ;; my version
+(re-seq #"[1-9]*[a-zA-Z ]" "2A3B4CD") ;; idiomatic version
+(re-seq #"\d+[^\d]+" "XYZ") ;; my version
+(re-seq #"[1-9]*[a-zA-Z ]" "XYZ") ;; idiomatic version
+(re-seq #"\d+[^\d]+" "12WB12W3B24WB") ;; my version
+(re-seq #"[1-9]*[a-zA-Z ]" "12WB12W3B24WB") ;; idiomatic version
+;; @@
+;; =>
+;;; {"type":"list-like","open":"<span class='clj-list'>(</span>","close":"<span class='clj-list'>)</span>","separator":" ","items":[{"type":"html","content":"<span class='clj-string'>&quot;12W&quot;</span>","value":"\"12W\""},{"type":"html","content":"<span class='clj-string'>&quot;B&quot;</span>","value":"\"B\""},{"type":"html","content":"<span class='clj-string'>&quot;12W&quot;</span>","value":"\"12W\""},{"type":"html","content":"<span class='clj-string'>&quot;3B&quot;</span>","value":"\"3B\""},{"type":"html","content":"<span class='clj-string'>&quot;24W&quot;</span>","value":"\"24W\""},{"type":"html","content":"<span class='clj-string'>&quot;B&quot;</span>","value":"\"B\""}],"value":"(\"12W\" \"B\" \"12W\" \"3B\" \"24W\" \"B\")"}
+;; <=
+
+;; **
+;;; You can see immediately that the idiomatic version handles the single length run (without the value) whereas my version does not.  _Also_, the idiomatic version returns a value result for the condition where I needed a specific ```if``` handler!
+;;; 
+;;; #### Decoding - One regex to rule them all
+;;; 
+;;; I'm keen to change my solution to use the more advanced regex, _but_ the surface area of the change is broader than I would like as I have the subsequent ```if``` condition to handle the nil return scenario from my original regex *and* another regex later that assumed there would be an integer part of each component returned from the original regex.  The simplest change I can do to incorporate the more powerful regex allows me to remove the initial ```if``` but it then forces my hand to add a new ```if``` to guard against an implicit single character run length.  See below.
+;; **
+
+;; @@
+(defn run-length-decode
+  [s]
+  (let [components (re-seq #"[1-9]*[a-zA-Z ]" s)]
+    (apply str (map #(let [length-raw (re-seq #"\d+" %)
+                           length (if (nil? length-raw) 1 (Integer/parseInt (first length-raw)))
+                           value (first (re-seq #"[^\d]+" %))
+                           run (apply str (repeat length (get value 0)))]
+                       run) components))))
+
+(run-length-decode "12WB12W3B24WB")
+;; @@
+;; =>
+;;; {"type":"html","content":"<span class='clj-string'>&quot;WWWWWWWWWWWWBWWWWWWWWWWWWBBBWWWWWWWWWWWWWWWWWWWWWWWWB&quot;</span>","value":"\"WWWWWWWWWWWWBWWWWWWWWWWWWBBBWWWWWWWWWWWWWWWWWWWWWWWWB\""}
+;; <=
+
+;; **
+;;; Still, I am happy with this solution in terms of length, and although I cannot look at the ```map``` body without wanting to pull a new function out of it, I can probably iterate a little further.
+;;; 
+;;; Let's see whether we can unravel the nested thread-last macro in the idiomatic solution to see what it does...
+;;; 
+;; **
+
+;; @@
+(->> "2A" drop-last (apply str) Integer.)
+(->> "12W" drop-last (apply str) Integer.)
+(repeat (->> "2A" drop-last (apply str) Integer.) (last "2A"))
+(repeat (->> "12W" drop-last (apply str) Integer.) (last "12W"))
+;; @@
+;; =>
+;;; {"type":"html","content":"<span class='clj-unkown'>(\\W \\W \\W \\W \\W \\W \\W \\W \\W \\W \\W \\W)</span>","value":"(\\W \\W \\W \\W \\W \\W \\W \\W \\W \\W \\W \\W)"}
+;; <=
+
+;; **
+;;; I like the use of ```drop-last``` here to isolate the run value from the length + value pair.  I've used another regex for this, but I have enough confidence in the format of that data, I could certainly use ```drop-last``` as well.
+;; **
+
+;; @@
+(defn run-length-decode
+  [s]
+  (let [components (re-seq #"[1-9]*[a-zA-Z ]" s)]
+    (apply str (map #(let [length-raw (re-seq #"\d+" %)
+                           length (if (nil? length-raw) 1 (Integer/parseInt (first length-raw)))
+                           value (last %) ;;; using last instead of regex
+                           run (apply str (repeat length value))] ;;; no longer a need to use get
+                       run) components))))
+
+(run-length-decode "12WB12W3B24WB")
+;; @@
+;; =>
+;;; {"type":"html","content":"<span class='clj-string'>&quot;WWWWWWWWWWWWBWWWWWWWWWWWWBBBWWWWWWWWWWWWWWWWWWWWWWWWB&quot;</span>","value":"\"WWWWWWWWWWWWBWWWWWWWWWWWWBBBWWWWWWWWWWWWWWWWWWWWWWWWB\""}
+;; <=
+
+;; **
+;;; This change had the added benefit of simplifying my approach to passing ```value``` to my ```repeat``` function call because it is now a single value rather than a collection that I need to access via ```get```.  Line #7 is now simple enough that I can return it via the body of the ```let``` rather than binding it to a variable which I then return.
+;; **
+
+;; @@
+(defn run-length-decode
+  [s]
+  (let [components (re-seq #"[1-9]*[a-zA-Z ]" s)]
+    (apply str (map #(let [length-raw (re-seq #"\d+" %)
+                           length (if (nil? length-raw) 1 (Integer/parseInt (first length-raw)))
+                           value (last %)]
+                       (apply str (repeat length value))) components)))) ;;; inlined the old run variable here
+
+(run-length-decode "12WB12W3B24WB")
+;; @@
+;; =>
+;;; {"type":"html","content":"<span class='clj-string'>&quot;WWWWWWWWWWWWBWWWWWWWWWWWWBBBWWWWWWWWWWWWWWWWWWWWWWWWB&quot;</span>","value":"\"WWWWWWWWWWWWBWWWWWWWWWWWWBBBWWWWWWWWWWWWWWWWWWWWWWWWB\""}
+;; <=
+
+;; **
+;;; The one final change I'm keen to look at is doing away with the regex on Line #4 via ```drop-last```.  While I am there, I can also use the shorter but no less readable ```Integer.``` instead of my original ```Integer/parseInt```.
+;; **
+
+;; @@
+(defn run-length-decode
+  [s]
+  (let [components (re-seq #"[1-9]*[a-zA-Z ]" s)]
+    (apply str (map #(let [length-raw (apply str (drop-last %))
+                           length (if (= 0 (count length-raw)) 1 (Integer. length-raw))
+                           value (last %)]
+                       (apply str (repeat length value))) components))))
+
+(run-length-decode "12WB12W3B24WB")
+;; @@
+;; =>
+;;; {"type":"html","content":"<span class='clj-string'>&quot;WWWWWWWWWWWWBWWWWWWWWWWWWBBBWWWWWWWWWWWWWWWWWWWWWWWWB&quot;</span>","value":"\"WWWWWWWWWWWWBWWWWWWWWWWWWBBBWWWWWWWWWWWWWWWWWWWWWWWWB\""}
+;; <=
+
+;; **
+;;; #### Decoding - Removing all let blocks
+;;; 
+;;; For the sake of the experiment, I want to see what my solution looks like when I remove all my ```let``` blocks.  I'm expecting an unreadable mess and some duplication around the ```length-raw``` expression, but this is a good time to refactor _beyond_ where I would stop when writing production code.
+;; **
+
+;; @@
+(defn run-length-decode
+  [s]
+  (apply str (map #(apply
+                    str
+                    (repeat
+                     (if (= 0 (count (apply str (drop-last %))))
+                       1
+                       (Integer. (apply str (drop-last %))))
+                     (last %)))
+                  (re-seq #"[1-9]*[a-zA-Z ]" s))))
+
+(run-length-decode "12WB12W3B24WB")
+;; @@
+;; =>
+;;; {"type":"html","content":"<span class='clj-string'>&quot;WWWWWWWWWWWWBWWWWWWWWWWWWBBBWWWWWWWWWWWWWWWWWWWWWWWWB&quot;</span>","value":"\"WWWWWWWWWWWWBWWWWWWWWWWWWBBBWWWWWWWWWWWWWWWWWWWWWWWWB\""}
+;; <=
+
+;; **
+;;; Don't be confused by the higher number of lines - I deliberately split several of the lines for clarity that wasn't needed when I was using my trusty ```let``` blocks.  As I suspect, this version is beyond my tolerance for density in Clojure.  Time to revert to the previous version.
+;;; 
+;;; ### Decoding - Final version
+;; **
+
+;; @@
+;;; Idiomatic version
+(defn run-length-decode
+  [s]
+  (->> s
+       (re-seq #"[1-9]*[a-zA-Z ]")
+       (mapcat #(if (= 1 (count %))
+                  %
+                  (repeat (->> % drop-last (apply str) Integer.) (last %))))
+       (apply str)))
+
+;;; My (refactored) version
+(defn run-length-decode
+  [s]
+  (let [components (re-seq #"[1-9]*[a-zA-Z ]" s)]
+    (apply str (map #(let [length-raw (apply str (drop-last %))
+                           length (if (= 0 (count length-raw)) 1 (Integer. length-raw))
+                           value (last %)]
+                       (apply str (repeat length value))) components))))
+;; @@
+;; =>
+;;; {"type":"html","content":"<span class='clj-var'>#&#x27;run-length-encoding-notebook.core/run-length-decode</span>","value":"#'run-length-encoding-notebook.core/run-length-decode"}
+;; <=
+
+;; **
+;;; | | My solution | Other solution |
+;;; |-----|-----|
+;;; |Lines of code|15 -> 7|8|
+;;; |Functions|2 -> 1|1|
+;;; |Local variables|4 -> 4|0|
+;;; 
+;;; Comparing the function usage between the two versions, there is a much higher amount of commonality between the two.  There is also the same number of functions used in both solutions.
+;;; 
+;;; | My solution | Other solution | Both solutions |
+;;; |-----|-----|-----|
+;;; |```map``` |```->>```|```re-seq``` |
+;;; |```let``` |```mapcat```|```count``` | 
+;;; |||```apply```|
+;;; |||```str``` |
+;;; |||```count``` | 
+;;; |||```drop-last``` |
+;;; |||```first``` |
+;;; |||```if``` |
+;;; |||```=``` |
+;; **
 
 ;; @@
 
